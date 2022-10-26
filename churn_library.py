@@ -92,6 +92,22 @@ def encoder_helper(data_frame, category_lst, response):
     output:
             data_frame: pandas dataframe with new columns for
     '''
+    # Copy DataFrmae
+    encoder_df = data_frame.copy(deep=True)
+
+    for category in category_lst:
+        column_lst = []
+        column_groups = data_frame.groupby(category).mean()['Churn']
+
+        for val in data_frame[category]:
+            column_lst.append(column_groups.loc[val])
+
+        if response:
+            encoder_df[category + '_' + response] = column_lst
+        else:
+            encoder_df[category] = column_lst
+
+    return encoder_df
 
 
 def perform_feature_engineering(data_frame, response):
@@ -160,7 +176,7 @@ def train_models(X_train, X_test, y_train, y_test):
 
 
 if __name__ == "__main__":
+    # Import data
     BANK_DF = data_frame(file_path='./data/bank_data.csv')
-    # data frame image
+    # perform EDA
     EDA_DF = perform_eda(data_frame=BANK_DF)
-    # pass
