@@ -86,7 +86,7 @@ def perform_eda(dataframe):
     return eda_df
 
 
-def encoder_helper(data_frame, category_lst, response):
+def encoder_helper(dataframe, category_lst, response):
     '''
     helper function to turn each categorical column into a new column with
     propotion of churn for each category - associated with cell 15 from the notebook
@@ -100,13 +100,13 @@ def encoder_helper(data_frame, category_lst, response):
             data_frame: pandas dataframe with new columns for
     '''
     # Copy DataFrmae
-    encoder_df = data_frame.copy(deep=True)
+    encoder_df = dataframe.copy(deep=True)
 
     for category in category_lst:
         column_lst = []
-        column_groups = data_frame.groupby(category).mean()['Churn']
+        column_groups = dataframe.groupby(category).mean()['Churn']
 
-        for val in data_frame[category]:
+        for val in dataframe[category]:
             column_lst.append(column_groups.loc[val])
 
         if response:

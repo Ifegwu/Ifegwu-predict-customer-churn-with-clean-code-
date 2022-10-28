@@ -70,7 +70,7 @@ def test_eda():
         logging.info('File %s was found', 'customer_age_dist.png')
     except AssertionError as err:
         logging.error('No such file on the disk')
-        return err
+        raise err
 
     # Assert that `dataframe.png` is created
     try:
@@ -78,7 +78,7 @@ def test_eda():
         logging.info('File %s was found', 'dataframe.png')
     except AssertionError as err:
         logging.error('No such file on the disk')
-        return err
+        raise err
 
     # Assert that `heatmap.png` is created
     try:
@@ -86,7 +86,7 @@ def test_eda():
         logging.info('File %s was found', 'heatmap.png')
     except AssertionError as err:
         logging.error("No such file on the disk")
-        return err
+        raise err
 
     # Assert that `marital_status_dist.png` is created
     try:
@@ -94,7 +94,7 @@ def test_eda():
         logging.info('File %s was found', 'marital_status_dist.png')
     except AssertionError as err:
         logging.error('No such file on the disk')
-        return err
+        raise err
 
     # Assert that `total_transaction_dist.png` is created
     try:
@@ -103,13 +103,80 @@ def test_eda():
         logging.info("File %s was found", "total_transaction_dist.png")
     except AssertionError as err:
         logging.error("No such file found on the disk")
-        return err
+        raise err
 
 
-def test_encoder_helper(encoder_helper):
+def test_encoder_helper():
     '''
     test encoder helper
     '''
+    # Load Dataframe
+    dataframe = clib.import_data("./data/bank_data.csv")
+
+    # Create `Churn` feature
+    dataframe['Churn'] = dataframe['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+
+    # Group categorical features
+    cat_columns = ['Gender', 'Education_Level',
+                   'Marital_Status', 'Income_category', 'Card_Category']
+
+    # Assert data should be thesame
+    try:
+        encoded_df = clib.encoder_helper(
+            dataframe=dataframe, category_lst=[], response=None)
+
+        # Data should be thesame
+        assert encoded_df.equals(dataframe) is True
+        logging.info(
+            "Testing encoder_helper(data_frame, category_lst=[]): SUCCESS")
+    except AssertionError as err:
+        logging.error(
+            "Testing encoder_helper(data_frame, category_lst=[]): ERROR")
+        raise err
+
+    # Assert that column names should be thesame and data should be different
+    try:
+        encoded_df = clib.encoder_helper(
+            dataframe=dataframe, category_lst=cat_columns, response=None)
+
+        # Column names should be thesame
+        assert encoded_df.columns.equals(dataframe.columns) is True
+
+        # Data should be different
+        assert encoded_df.equals(dataframe) is False
+        logging.info(
+            "Testing encoder_helper(data_frame, category_lst=cat_columns, response=None): SUCCESS")
+
+    except AssertionError as err:
+        logging.error(
+            "Testing encoder_helper(data_frame, category_lst=cat_columns, response=None): ERROR")
+        raise err
+
+    # Assert that columns names should be different,
+    # data should be different, and Number of columns in encoded_df is
+    # the sum of columns in data_frame and the newly created columns from cat_columns
+
+    try:
+        encoded_df = clib.encoder_helper(
+            dataframe=dataframe, category_lst=cat_columns, response='Churn')
+
+        # Column names should be different
+        assert encoded_df.columns.equals(dataframe.columns) is False
+
+        # Data should be different
+        assert encoded_df.equals(dataframe) is False
+
+        # Number of columns in encoded_df is the sum of columns
+        # in data_frame and the newly created columns from cat_columns
+        assert len(encoded_df.columns) == len(
+            dataframe.columns) + len(cat_columns)
+        logging.info(
+            "Testing encoder_helper(data_frame, category_lst=cat_columns, response='Churn'): SUCCESS")
+    except AssertionError as err:
+        logging.error(
+            "Testing encoder_helper(data_frame, category_lst=cat_columns, response='Churn'): ERROR")
+        raise err
 
 
 def test_perform_feature_engineering(perform_feature_engineering):
