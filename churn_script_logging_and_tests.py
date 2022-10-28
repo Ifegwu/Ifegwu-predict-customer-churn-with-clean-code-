@@ -9,6 +9,7 @@ Date: 28th October 2022
 # Import libaries
 import os
 import logging
+from pickle import TRUE
 import churn_library as clib
 
 # logging configuration
@@ -41,10 +42,68 @@ def test_import():
         raise err
 
 
-def test_eda(perform_eda):
+def test_eda():
     '''
     test perform eda function
     '''
+
+    dataframe = clib.import_data("./data/bank_data.csv")
+
+    try:
+        clib.perform_eda(dataframe=dataframe)
+        logging.info("Testing perform_eda: SUCCESS")
+    except KeyError as err:
+        logging.error('Column "%s" not found', err.args[0])
+        raise err
+
+    # Assert that `churn_dist.png` is created
+    try:
+        assert os.path.isfile("./images/eda/churn_dist.png") is True
+        logging.info('File %s was found', 'churn_dist.png')
+    except AssertionError as err:
+        logging.error('No such file on the disk')
+        raise err
+
+    # Assert that `customer_age_dist.png` is created
+    try:
+        assert os.path.isfile("./images/eda/customer_age_dist.png") is True
+        logging.info('File %s was found', 'customer_age_dist.png')
+    except AssertionError as err:
+        logging.error('No such file on the disk')
+        return err
+
+    # Assert that `dataframe.png` is created
+    try:
+        assert os.path.isfile("./images/eda/dataframe.png") is True
+        logging.info('File %s was found', 'dataframe.png')
+    except AssertionError as err:
+        logging.error('No such file on the disk')
+        return err
+
+    # Assert that `heatmap.png` is created
+    try:
+        assert os.path.isfile("./images/eda/heatmap.png") is True
+        logging.info('File %s was found', 'heatmap.png')
+    except AssertionError as err:
+        logging.error("No such file on the disk")
+        return err
+
+    # Assert that `marital_status_dist.png` is created
+    try:
+        assert os.path.isfile("./images/eda/marital_status_dist.png") is True
+        logging.info('File %s was found', 'marital_status_dist.png')
+    except AssertionError as err:
+        logging.error('No such file on the disk')
+        return err
+
+    # Assert that `total_transaction_dist.png` is created
+    try:
+        assert os.path.isfile(
+            "./images/eda/total_transaction_dist.png") is True
+        logging.info("File %s was found", "total_transaction_dist.png")
+    except AssertionError as err:
+        logging.error("No such file found on the disk")
+        return err
 
 
 def test_encoder_helper(encoder_helper):
@@ -67,3 +126,4 @@ def test_train_models(train_models):
 
 if __name__ == "__main__":
     test_import()
+    test_eda()
