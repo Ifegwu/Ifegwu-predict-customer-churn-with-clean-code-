@@ -1,15 +1,22 @@
 # library doc string
+'''
+Module contains functions of churn customer analysis
+
+Author : Ifegwu Daniel Agbanyim
+
+Date : 26th October 2022
+'''
+# Import libraries
 import pandas as pd
 import seaborn as sns
 from pandas.plotting import table
 import matplotlib.pyplot as plt
-
-# import libraries
 import os
+
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
-def data_frame(file_path):
+def import_data(file_path):
     '''
     returns dataframe for the csv found at pth
 
@@ -23,7 +30,7 @@ def data_frame(file_path):
     return df  # output the data frame
 
 
-def perform_eda(data_frame):
+def perform_eda(dataframe):
     '''
     perform eda on df and save figures to images folder
     input:
@@ -33,7 +40,7 @@ def perform_eda(data_frame):
             None
     '''
     # copy dataframe
-    eda_df = data_frame.copy(deep=True)
+    eda_df = dataframe.copy(deep=True)
 
     # DataFrame
     fig, ax = plt.subplots(figsize=(12, 2))  # set size frame
@@ -177,6 +184,6 @@ def train_models(X_train, X_test, y_train, y_test):
 
 if __name__ == "__main__":
     # Import data
-    BANK_DF = data_frame(file_path='./data/bank_data.csv')
+    BANK_DF = import_data(file_path='./data/bank_data.csv')
     # perform EDA
-    EDA_DF = perform_eda(data_frame=BANK_DF)
+    EDA_DF = perform_eda(dataframe=BANK_DF)
