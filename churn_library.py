@@ -7,14 +7,14 @@ Author : Ifegwu Daniel Agbanyim
 Date : 26th October 2022
 '''
 # Import libraries
+import numpy as np
 import pandas as pd
 import seaborn as sns
 from pandas.plotting import table
 import matplotlib.pyplot as plt
 import os
-
 from sklearn.model_selection import train_test_split
-
+from sklearn.metrics import classification_report
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
@@ -183,10 +183,34 @@ def classification_report_image(y_train,
     output:
              None
     '''
-    pass
+    # Random Forest Classifier
+    plt.rc('figure', figsize=(6, 6))
+    plt.text(0.01, 1.25, str('Random Forest Train'), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_rf)), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.6, str("Logistic Regression Test"), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_rf)), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.axis('off')
+    plt.savefig(fname='./images/results/rf_results.png')
+
+    # Logistic Regression Classifier
+    plt.rc('figure', figsize=(6, 6))
+    plt.text(0.01, 1.25, str('Random Forest Train'), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.6, str("Logistic Regression Test"), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)), {
+             'fontsize': 10}, fontproperties='monospace')
+    plt.axis('off')
+    plt.savefig(fname='./images/results/logistic_results.png')
 
 
-def feature_importance_plot(model, X_data, output_pth):
+def feature_importance_plot(model, features, output_pth):
     '''
     creates and stores the feature importances in pth
     input:
@@ -197,7 +221,30 @@ def feature_importance_plot(model, X_data, output_pth):
     output:
              None
     '''
-    pass
+    # Feature importances
+    importances = model.best_estimator_.feature_importances_
+
+    # Sort feature importances in descending order
+    indices = np.argsort(importances)[::-1]
+
+    # Sorted feature importances
+    names = [features.columns[i] for i in indices]
+
+    # Create plot
+    plt.figure(figsize=(25, 25))
+
+    # Create plot title
+    plt.title('Feature Importance')
+    plt.ylabel('Importance')
+
+    # Add bars
+    plt.bar(range(features.shape[1]), importances[indices])
+
+    # x-axis labels
+    plt.xticks(range(features.shape[1]), names, rotation=90)
+
+    # Save image
+    plt.savefig(fname=output_pth + 'feature_importances.png')
 
 
 def train_models(X_train, X_test, y_train, y_test):
