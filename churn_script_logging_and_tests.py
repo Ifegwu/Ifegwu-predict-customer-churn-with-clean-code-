@@ -11,6 +11,7 @@ import os
 import logging
 from pickle import TRUE
 import churn_library as clib
+from math import ceil
 
 # logging configuration
 logging.basicConfig(
@@ -119,7 +120,7 @@ def test_encoder_helper():
 
     # Group categorical features
     cat_columns = ['Gender', 'Education_Level',
-                   'Marital_Status', 'Income_category', 'Card_Category']
+                   'Marital_Status', 'Income_Category', 'Card_Category']
 
     # Assert data should be thesame
     try:
@@ -179,10 +180,41 @@ def test_encoder_helper():
         raise err
 
 
-def test_perform_feature_engineering(perform_feature_engineering):
+def test_perform_feature_engineering():
     '''
     test perform_feature_engineering
     '''
+
+    # Load the dataframe
+    dataframe = clib.import_data("./data/bank_data.csv")
+
+    # Churn feature
+    dataframe['Churn'] = dataframe['Attrition_Flag'].apply(
+        lambda val: 0 if val == "Existing Customer" else 1)
+
+    try:
+        (_, X_test, _, _) = clib.perform_feature_engineering(
+            dataframe=dataframe,
+            response='Churn')
+
+        # `Churn` must be present in `dataframe`
+        assert 'Churn' in dataframe.columns
+        logging.info(
+            "Testing perform_feature_engineering. `Churn` column is present: SUCCESS")
+    except KeyError as err:
+        logging.error(
+            'The `Churn` column is not present in the dataframe: ERROR')
+        raise err
+
+    try:
+        # X_test size should be 30# of `dataframe`
+        assert (X_test.shape[0] == ceil(dataframe.shape[0]*0.3)) is True
+        logging.info(
+            'Testing perform_feature_engineering. DataFrame sizes are consistent: SUCCESS')
+    except AssertionError as err:
+        logging.error(
+            'Testing perform_feature_engineering. DataFrame sizes are not correct: ERROR')
+        raise err
 
 
 def test_train_models(train_models):
@@ -194,3 +226,5 @@ def test_train_models(train_models):
 if __name__ == "__main__":
     test_import()
     test_eda()
+    test_encoder_helper()
+    test_perform_feature_engineering()
