@@ -216,7 +216,7 @@ def test_perform_feature_engineering():
         raise err
 
 
-def test_train_models(train_models):
+def test_train_models():
     '''
     test train_models function from churn_library module
     '''
