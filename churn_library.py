@@ -7,14 +7,17 @@ Author : Ifegwu Daniel Agbanyim
 Date : 26th October 2022
 '''
 # Import libraries
+import joblib
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from pandas.plotting import table
 import matplotlib.pyplot as plt
 import os
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.metrics import classification_report, plot_roc_curve
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 
 
@@ -184,25 +187,25 @@ def classification_report_image(y_train,
              None
     '''
     # Random Forest Classifier
-    plt.rc('figure', figsize=(6, 6))
+    plt.rc('figure', figsize=(5, 5))
     plt.text(0.01, 1.25, str('Random Forest Train'), {
              'fontsize': 10}, fontproperties='monospace')
-    plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_rf)), {
+    plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_rf)), {
              'fontsize': 10}, fontproperties='monospace')
-    plt.text(0.01, 0.6, str("Logistic Regression Test"), {
+    plt.text(0.01, 0.6, str('Random Forest Test'), {
              'fontsize': 10}, fontproperties='monospace')
-    plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_rf)), {
+    plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_rf)), {
              'fontsize': 10}, fontproperties='monospace')
     plt.axis('off')
     plt.savefig(fname='./images/results/rf_results.png')
 
     # Logistic Regression Classifier
-    plt.rc('figure', figsize=(6, 6))
-    plt.text(0.01, 1.25, str('Random Forest Train'), {
-             'fontsize': 10}, fontproperties='monospace')
+    plt.rc('figure', figsize=(5, 5))
+    plt.text(0.01, 1.25, str('Logistic Regression Train'),
+             {'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {
              'fontsize': 10}, fontproperties='monospace')
-    plt.text(0.01, 0.6, str("Logistic Regression Test"), {
+    plt.text(0.01, 0.6, str('Logistic Regression Test'), {
              'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)), {
              'fontsize': 10}, fontproperties='monospace')
@@ -258,7 +261,52 @@ def train_models(X_train, X_test, y_train, y_test):
     output:
               None
     '''
-    pass
+    # Random Forest Classifier and Logistic Regression
+    rfc = RandomForestClassifier(random_state=42, n_jobs=-1)
+    lrc = LogisticRegression(n_jobs=-1, max_iter=1000)
+
+    # Parameters for Grid Search
+    param_grid = {'n_estimators': [200, 500], 'max_features': [
+        'auto', 'sqrt'], 'max_depth': [4, 5, 100], 'criterion': ['gini', 'entropy']}
+
+    # Grid searvh and fit for Random Forest Classifier
+    cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
+    cv_rfc.fit(X_train, y_train)
+
+    # Logistic Regression
+    lrc.fit(X_train, y_train)
+
+    # Save best models
+    joblib.dump(cv_rfc.best_estimator_, './models/rfc_model.pkl')
+    joblib.dump(lrc, './models/logistic_model.pkl')
+
+    # Compute train and test predictions for Random Forest Classifier
+    y_train_preds_rf = cv_rfc.best_estimator_.predict(X_train)
+    y_test_preds_rf = cv_rfc.best_estimator_.predict(X_test)
+
+    # Compute train and test predictions for Logistic Regression
+    y_train_preds_lr = lrc.predict(X_train)
+    y_test_preds_lr = lrc.predict(X_test)
+
+    # Computer ROC curve
+    plt.figure(figsize=(15, 8))
+    axis = plt.gca()
+    rfc_disp = plot_roc_curve(cv_rfc.best_estimator_,
+                              X_test, y_test, ax=axis, alpha=0.8)
+    lrc_plot = plot_roc_curve(lrc, X_test, y_test, ax=axis, alpha=0.8)
+    plt.savefig(fname='./images/results/roc_curve_result.png')
+
+    classification_report_image(
+        y_train, y_test,
+        y_train_preds_lr,
+        y_train_preds_rf,
+        y_test_preds_lr,
+        y_test_preds_rf
+    )
+
+    # Compute and feature importance
+    feature_importance_plot(model=cv_rfc, features=X_test,
+                            output_pth='./images/results/')
 
 
 if __name__ == "__main__":
@@ -271,3 +319,7 @@ if __name__ == "__main__":
     # Performance Feature Engineering
     X_TRAIN, X_TEST, Y_TRAIN, Y_TEST = perform_feature_engineering(
         dataframe=EDA_DF, response='Churn')
+
+    # Model taining, prediction and evaluation
+    train_models(X_train=X_TRAIN, X_test=X_TEST,
+                 y_train=Y_TRAIN, y_test=Y_TEST)
