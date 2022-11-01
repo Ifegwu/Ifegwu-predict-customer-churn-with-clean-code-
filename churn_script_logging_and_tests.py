@@ -9,8 +9,8 @@ Date: 28th October 2022
 # Import libaries
 import os
 import logging
-import churn_library as clib
 from math import ceil
+import churn_library as clib
 
 # logging configuration
 logging.basicConfig(
@@ -155,7 +155,8 @@ def test_encoder_helper():
 
     # Assert that columns names should be different,
     # data should be different, and Number of columns in encoded_df is
-    # the sum of columns in data_frame and the newly created columns from cat_columns
+    # the sum of columns in data_frame and the newly created columns from
+    # cat_columns
 
     try:
         encoded_df = clib.encoder_helper(
@@ -207,7 +208,7 @@ def test_perform_feature_engineering():
 
     try:
         # X_test size should be 30% of `dataframe`
-        assert (X_test.shape[0] == ceil(dataframe.shape[0]*0.3)) is True
+        assert (X_test.shape[0] == ceil(dataframe.shape[0] * 0.3)) is True
         logging.info(
             'Testing perform_feature_engineering. DataFrame sizes are consistent: SUCCESS')
     except AssertionError as err:

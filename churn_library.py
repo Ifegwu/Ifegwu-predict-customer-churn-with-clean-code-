@@ -7,13 +7,13 @@ Author : Ifegwu Daniel Agbanyim
 Date : 26th October 2022
 '''
 # Import libraries
+import os
 import joblib
 import numpy as np
 import pandas as pd
 import seaborn as sns
 from pandas.plotting import table
 import matplotlib.pyplot as plt
-import os
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, train_test_split
@@ -31,8 +31,8 @@ def import_data(file_path):
             df: pandas dataframe
     '''
 
-    df = pd.read_csv(file_path)  # read the csv file
-    return df  # output the data frame
+    dataframe = pd.read_csv(file_path)  # read the csv file
+    return dataframe  # output the data frame
 
 
 def perform_eda(dataframe):
@@ -48,11 +48,11 @@ def perform_eda(dataframe):
     eda_df = dataframe.copy(deep=True)
 
     # DataFrame
-    fig, ax = plt.subplots(figsize=(12, 2))  # set size frame
-    ax.xaxis.set_visible(False)  # hide the x axis
-    ax.yaxis.set_visible(False)  # hide the y axis
-    ax.set_frame_on(False)  # no visible frame, uncomment if size is ok
-    tabla = table(ax, eda_df.head(10), loc='upper left', colWidths=[
+    figure, axis = plt.subplots(figsize=(12, 2))  # set size frame
+    axis.xaxis.set_visible(False)  # hide the x axis
+    axis.yaxis.set_visible(False)  # hide the y axis
+    axis.set_frame_on(False)  # no visible frame, uncomment if size is ok
+    tabla = table(axis, eda_df.head(10), loc='upper left', colWidths=[
                   0.12]*len(eda_df.columns))  # where eda_df is your data frame
     tabla.auto_set_font_size(False)  # Activate set fontsize manually
     tabla.set_fontsize(9)  # if ++fontsize is necessary ++colWidths
@@ -102,7 +102,7 @@ def encoder_helper(dataframe, category_lst, response):
             response: string of response name [optional argument that could be used for naming variables or index y column]
 
     output:
-            data_frame: pandas dataframe with new columns for
+        data_frame: pandas dataframe with new columns for
     '''
     # Copy DataFrmae
     encoder_df = dataframe.copy(deep=True)
@@ -173,8 +173,8 @@ def classification_report_image(y_train,
                                 y_test_preds_lr,
                                 y_test_preds_rf):
     '''
-    produces classification report for training and testing results and stores report as image
-    in images folder
+    produces classification report for training and testing 
+    results and stores report as image in images folder
     input:
             y_train: training response values
             y_test:  test response values
@@ -218,8 +218,7 @@ def feature_importance_plot(model, features, output_pth):
     creates and stores the feature importances in pth
     input:
             model: model object containing feature_importances_
-            X_data: pandas dataframe of X values
-            output_pth: path to store the figure
+            X_data: pandas dataframe of X values output_pth: path to store the figure
 
     output:
              None
