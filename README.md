@@ -53,4 +53,5 @@ We will use git and [conda](https://conda.io/projects/conda/en/latest/user-guide
 ~/project$ autopep8 --in-place --aggressive --aggressive churn_library.py
 ```
 
-
+## References
+[Kaggle](https://www.kaggle.com/datasets/sakshigoyal7/credit-card-customers/code)
