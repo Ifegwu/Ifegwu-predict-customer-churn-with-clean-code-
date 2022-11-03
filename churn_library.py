@@ -53,11 +53,12 @@ def perform_eda(dataframe):
     axis.yaxis.set_visible(False)  # hide the y axis
     axis.set_frame_on(False)  # no visible frame, uncomment if size is ok
     tabla = table(axis, eda_df.head(10), loc='upper left', colWidths=[
-                  0.12]*len(eda_df.columns))  # where eda_df is your data frame
+                  0.12] * len(eda_df.columns))  # where eda_df is your data frame
     tabla.auto_set_font_size(False)  # Activate set fontsize manually
     tabla.set_fontsize(9)  # if ++fontsize is necessary ++colWidths
     tabla.scale(1.2, 1.2)  # change size table
     plt.savefig(fname='./images/eda/dataframe.png')
+    plt.close()
 
     # Churn
     eda_df['Churn'] = eda_df['Attrition_Flag'].apply(
@@ -67,26 +68,31 @@ def perform_eda(dataframe):
     plt.figure(figsize=(20, 10))
     eda_df['Churn'].hist()
     plt.savefig(fname='./images/eda/churn_dist.png')
+    plt.close()
 
     # Customer Age Distribution
     plt.figure(figsize=(20, 10))
     eda_df['Customer_Age'].hist()
     plt.savefig(fname='./images/eda/customer_age_dist.png')
+    plt.close()
 
     # Marital Status Distribution
     plt.figure(figsize=(20, 10))
     eda_df.Marital_Status.value_counts('normalize').plot(kind='bar')
     plt.savefig(fname='./images/eda/marital_status_dist.png')
+    plt.close()
 
     # Total Transaction Distribution
     plt.figure(figsize=(20, 10))
     sns.histplot(eda_df['Total_Trans_Ct'], kde=True)
     plt.savefig(fname='./images/eda/total_transaction_dist.png')
+    plt.close()
 
     # Heatmap
     plt.figure(figsize=(20, 10))
     sns.heatmap(eda_df.corr(), annot=False, cmap='Dark2_r', linewidths=2)
     plt.savefig(fname='./images/eda/heatmap.png')
+    plt.close()
 
     return eda_df
 
@@ -99,7 +105,8 @@ def encoder_helper(dataframe, category_lst, response):
     input:
             data_frame: pandas dataframe
             category_lst: list of columns that contain categorical features
-            response: string of response name [optional argument that could be used for naming variables or index y column]
+            response: string of response name [optional argument that could
+                        be used for naming variables or index y column]
 
     output:
         data_frame: pandas dataframe with new columns for
@@ -107,15 +114,30 @@ def encoder_helper(dataframe, category_lst, response):
     # Copy DataFrmae
     encoder_df = dataframe.copy(deep=True)
 
+    # for category in category_lst:
+    #     column_lst = []
+    #     column_groups = dataframe.groupby(category).mean()['Churn']
+
+    #     for val in dataframe[category]:
+    #         column_lst.append(column_groups.loc[val])
+
+    #     if response:
+    #         encoder_df[category + '_' + response] = column_lst
+    #     else:
+    #         encoder_df[category] = column_lst
+
+    # test run `Column names should be thesame` could not pass
+    # for category in category_lst:
+    #     column_lst = category
+    #     encoder_df[column_lst] = dataframe.groupby(
+    #         category)["Churn"].transform("mean")
+
     for category in category_lst:
-        column_lst = []
-        column_groups = dataframe.groupby(category).mean()['Churn']
-
-        for val in dataframe[category]:
-            column_lst.append(column_groups.loc[val])
-
+        column_lst = category
         if response:
-            encoder_df[category + '_' + response] = column_lst
+            column_lst = category + '_' + response
+            encoder_df[column_lst] = dataframe.groupby(
+                category)["Churn"].transform("mean")
         else:
             encoder_df[category] = column_lst
 
@@ -126,7 +148,8 @@ def perform_feature_engineering(dataframe, response):
     '''
     input:
               data_frame: pandas dataframe
-              response: string of response name [optional argument that could be used for naming variables or index y column]
+              response: string of response name [optional argument that could
+                            be used for naming variables or index y column]
 
     output:
               X_train: X training data
@@ -148,13 +171,26 @@ def perform_feature_engineering(dataframe, response):
     # Create dataframe
     X = pd.DataFrame()
 
-    keep_cols = ['Customer_Age', 'Dependent_count', 'Months_on_book',
-                 'Total_Relationship_Count', 'Months_Inactive_12_mon',
-                 'Contacts_Count_12_mon', 'Credit_Limit', 'Total_Revolving_Bal',
-                 'Avg_Open_To_Buy', 'Total_Amt_Chng_Q4_Q1', 'Total_Trans_Amt',
-                 'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio',
-                 'Gender_Churn', 'Education_Level_Churn', 'Marital_Status_Churn',
-                 'Income_Category_Churn', 'Card_Category_Churn']
+    keep_cols = [
+        'Customer_Age',
+        'Dependent_count',
+        'Months_on_book',
+        'Total_Relationship_Count',
+        'Months_Inactive_12_mon',
+        'Contacts_Count_12_mon',
+        'Credit_Limit',
+        'Total_Revolving_Bal',
+        'Avg_Open_To_Buy',
+        'Total_Amt_Chng_Q4_Q1',
+        'Total_Trans_Amt',
+        'Total_Trans_Ct',
+        'Total_Ct_Chng_Q4_Q1',
+        'Avg_Utilization_Ratio',
+        'Gender_Churn',
+        'Education_Level_Churn',
+        'Marital_Status_Churn',
+        'Income_Category_Churn',
+        'Card_Category_Churn']
 
     # Apply dataframe
     X[keep_cols] = encode_df[keep_cols]
@@ -166,14 +202,15 @@ def perform_feature_engineering(dataframe, response):
     return (X_train, X_test, y_train, y_test)
 
 
-def classification_report_image(y_train,
-                                y_test,
-                                y_train_preds_lr,
-                                y_train_preds_rf,
-                                y_test_preds_lr,
-                                y_test_preds_rf):
+def classification_report_image(
+        y_train,
+        y_test,
+        y_train_preds_lr,
+        y_train_preds_rf,
+        y_test_preds_lr,
+        y_test_preds_rf):
     '''
-    produces classification report for training and testing 
+    produces classification report for training and testing
     results and stores report as image in images folder
     input:
             y_train: training response values
@@ -187,30 +224,38 @@ def classification_report_image(y_train,
              None
     '''
     # Random Forest Classifier
-    plt.rc('figure', figsize=(5, 5))
+    plt.rc('figure', figsize=(6, 6))
     plt.text(0.01, 1.25, str('Random Forest Train'), {
              'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.05, str(classification_report(y_test, y_test_preds_rf)), {
              'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.6, str('Random Forest Test'), {
              'fontsize': 10}, fontproperties='monospace')
-    plt.text(0.01, 0.7, str(classification_report(y_train, y_train_preds_rf)), {
-             'fontsize': 10}, fontproperties='monospace')
+    plt.text(
+        0.01, 0.7, str(
+            classification_report(
+                y_train, y_train_preds_rf)), {
+            'fontsize': 10}, fontproperties='monospace')
     plt.axis('off')
     plt.savefig(fname='./images/results/rf_results.png')
+    plt.close()
 
     # Logistic Regression Classifier
-    plt.rc('figure', figsize=(5, 5))
+    plt.rc('figure', figsize=(6, 6))
     plt.text(0.01, 1.25, str('Logistic Regression Train'),
              {'fontsize': 10}, fontproperties='monospace')
-    plt.text(0.01, 0.05, str(classification_report(y_train, y_train_preds_lr)), {
-             'fontsize': 10}, fontproperties='monospace')
+    plt.text(
+        0.01, 0.05, str(
+            classification_report(
+                y_train, y_train_preds_lr)), {
+            'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.6, str('Logistic Regression Test'), {
              'fontsize': 10}, fontproperties='monospace')
     plt.text(0.01, 0.7, str(classification_report(y_test, y_test_preds_lr)), {
              'fontsize': 10}, fontproperties='monospace')
     plt.axis('off')
     plt.savefig(fname='./images/results/logistic_results.png')
+    plt.close()
 
 
 def feature_importance_plot(model, features, output_pth):
@@ -247,6 +292,7 @@ def feature_importance_plot(model, features, output_pth):
 
     # Save image
     plt.savefig(fname=output_pth + 'feature_importances.png')
+    plt.close()
 
 
 def train_models(X_train, X_test, y_train, y_test):
@@ -265,8 +311,12 @@ def train_models(X_train, X_test, y_train, y_test):
     lrc = LogisticRegression(n_jobs=-1, max_iter=1000)
 
     # Parameters for Grid Search
-    param_grid = {'n_estimators': [200, 500], 'max_features': [
-        'auto', 'sqrt'], 'max_depth': [4, 5, 100], 'criterion': ['gini', 'entropy']}
+    param_grid = {
+        'n_estimators': [
+            200, 500], 'max_features': [
+            'auto', 'sqrt'], 'max_depth': [
+                4, 5, 100], 'criterion': [
+                    'gini', 'entropy']}
 
     # Grid searvh and fit for Random Forest Classifier
     cv_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv=5)
@@ -294,6 +344,7 @@ def train_models(X_train, X_test, y_train, y_test):
                               X_test, y_test, ax=axis, alpha=0.8)
     lrc_plot = plot_roc_curve(lrc, X_test, y_test, ax=axis, alpha=0.8)
     plt.savefig(fname='./images/results/roc_curve_result.png')
+    plt.close()
 
     classification_report_image(
         y_train, y_test,

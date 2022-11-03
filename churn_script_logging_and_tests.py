@@ -9,15 +9,16 @@ Date: 28th October 2022
 # Import libaries
 import os
 import logging
+import time
 from math import ceil
 import churn_library as clib
 
 # logging configuration
 logging.basicConfig(
-    filename='./logs/churn_library.log',
+    filename=f"./logs/churn_library_{time.strftime('%b_%d_%Y_%H_%M_%S')}.log",
     level=logging.INFO,
-    filemode='w',
-    format='%(asctime)s - %(name)s - %(levelname)s: %(message)s')
+    filemode="w",
+    format="%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
 
 def test_import():
